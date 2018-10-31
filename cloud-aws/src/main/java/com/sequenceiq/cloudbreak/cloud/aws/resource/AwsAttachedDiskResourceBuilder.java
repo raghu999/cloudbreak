@@ -15,6 +15,10 @@ import org.springframework.stereotype.Component;
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.DescribeVolumesRequest;
 import com.amazonaws.services.ec2.model.DescribeVolumesResult;
+import com.amazonaws.services.ec2.model.EbsInstanceBlockDeviceSpecification;
+import com.amazonaws.services.ec2.model.InstanceBlockDeviceMappingSpecification;
+import com.amazonaws.services.ec2.model.ModifyInstanceAttributeRequest;
+import com.amazonaws.services.ec2.model.ModifyInstanceAttributeResult;
 import com.sequenceiq.cloudbreak.cloud.aws.AwsClient;
 import com.sequenceiq.cloudbreak.cloud.aws.context.AwsContext;
 import com.sequenceiq.cloudbreak.cloud.aws.service.AwsResourceNameService;
@@ -84,7 +88,21 @@ public class AwsAttachedDiskResourceBuilder extends AbstractAwsComputeBuilder {
 
     @Override
     public CloudResource delete(AwsContext context, AuthenticatedContext auth, CloudResource resource) {
-        return null;
+        AmazonEC2Client client = awsClient.createAccess(auth.getCloudCredential());
+        String volumeId = getVolumeId(resource);
+        EbsInstanceBlockDeviceSpecification ebsInstanceBlockDevice = new EbsInstanceBlockDeviceSpecification()
+                .withVolumeId(volumeId)
+                .withDeleteOnTermination(true);
+        InstanceBlockDeviceMappingSpecification instanceBlockDeviceMappingSpecification = new InstanceBlockDeviceMappingSpecification()
+                .withEbs(ebsInstanceBlockDevice);
+        String instanceId = resource.getParameter("instanceId", String.class); // TODO update volume attribute with instanceId; check if instanceId is required at all
+        ModifyInstanceAttributeRequest modifyInstanceAttributeRequest = new ModifyInstanceAttributeRequest()
+                .withInstanceId(instanceId)
+                .withBlockDeviceMappings(instanceBlockDeviceMappingSpecification);
+
+        // TODO: can status be returned somehow?
+        ModifyInstanceAttributeResult modifyIdentityIdFormatResult = client.modifyInstanceAttribute(modifyInstanceAttributeRequest);
+        return resource;
     }
 
     @Override
@@ -124,7 +142,7 @@ public class AwsAttachedDiskResourceBuilder extends AbstractAwsComputeBuilder {
     private CloudResource findMatchingResource(List<CloudResource> volumeResources, String id) {
         return volumeResources.stream().filter(v -> getVolumeId(v).equals(id)).findFirst().orElse(null);
     }
-    
+
     @Override
     public int order() {
         return 1;
