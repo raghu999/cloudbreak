@@ -19,7 +19,7 @@ public class AwsResourceNameService extends CloudbreakResourceNameService {
 
     private static final String FIREWALL_IN_NAME_SUFFIX = "in";
 
-    private static final int ATTACHED_DISKS_PART_COUNT = 4;
+    private static final int ATTACHED_DISKS_PART_COUNT = 3;
 
     private static final int INSTANCE_NAME_PART_COUNT = 3;
 

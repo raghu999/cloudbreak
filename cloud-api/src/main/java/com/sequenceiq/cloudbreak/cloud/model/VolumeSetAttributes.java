@@ -95,11 +95,14 @@ public class VolumeSetAttributes {
         private String mounthPath;
 
         private String uuid;
+        private String device;
 
-        public Volume(@JsonProperty("id") String id, @JsonProperty("mounthPath") String mounthPath, @JsonProperty("uuid") String uuid) {
+        public Volume(@JsonProperty("id") String id, @JsonProperty("mounthPath") String mounthPath, @JsonProperty("uuid") String uuid,
+                @JsonProperty("device") String device) {
             this.id = id;
             this.mounthPath = mounthPath;
             this.uuid = uuid;
+            this.device = device;
         }
 
         public String getId() {
@@ -124,6 +127,14 @@ public class VolumeSetAttributes {
 
         public void setUuid(String uuid) {
             this.uuid = uuid;
+        }
+
+        public void setDevice(String device) {
+            this.device = device;
+        }
+
+        public String getDevice() {
+            return device;
         }
     }
 
