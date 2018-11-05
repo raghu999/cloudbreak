@@ -1,6 +1,5 @@
 package com.sequenceiq.cloudbreak.cloud.aws.resource;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
 import java.util.function.Function;
@@ -101,7 +100,7 @@ public class AwsAttachmentResourceBuilder extends AbstractAwsComputeBuilder {
     @Override
     protected List<CloudResourceStatus> checkResources(ResourceType type, AwsContext context, AuthenticatedContext auth, Iterable<CloudResource> resources) {
 
-        AmazonEC2Client client = awsClient.createAccess(auth.getCloudCredential());
+        AmazonEC2Client client = getAmazonEC2Client(auth);
         List<CloudResource> volumeResources = StreamSupport.stream(resources.spliterator(), false)
                 .filter(r -> r.getType().equals(resourceType()))
                 .collect(Collectors.toList());
@@ -124,6 +123,12 @@ public class AwsAttachmentResourceBuilder extends AbstractAwsComputeBuilder {
 
     private Function<CloudResource, VolumeSetAttributes> volumeSetAttributes() {
         return volumeSet -> volumeSet.getParameter(CloudResource.ATTRIBUTES, VolumeSetAttributes.class);
+    }
+
+    private AmazonEC2Client getAmazonEC2Client(AuthenticatedContext auth) {
+        AwsCredentialView credentialView = new AwsCredentialView(auth.getCloudCredential());
+        String regionName = auth.getCloudContext().getLocation().getRegion().value();
+        return awsClient.createAccess(credentialView, regionName);
     }
 
     @Override

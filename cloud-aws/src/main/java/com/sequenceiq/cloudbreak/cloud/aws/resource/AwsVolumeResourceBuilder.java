@@ -86,28 +86,26 @@ public class AwsVolumeResourceBuilder extends AbstractAwsComputeBuilder {
         CloudContext cloudContext = auth.getCloudContext();
         String stackName = cloudContext.getName();
         return List.of(new Builder()
-                    .persistent(true)
-                    .type(resourceType())
-                    .name(resourceNameService.resourceName(resourceType(), stackName, groupName, privateId))
-                    .group(group.getName())
-                    .status(CommonStatus.CREATED)
-                    .params(Map.of(CloudResource.ATTRIBUTES, new VolumeSetAttributes.Builder()
-                            .withVolumeSize(volumeTemplate.getSize())
-                            .withVolumeType(volumeTemplate.getType())
-                            .withAvailabilityZone(auth.getCloudContext().getLocation().getAvailabilityZone().value())
-                            .withVolumes(template.getVolumes().stream().map(vol -> new VolumeSetAttributes.Volume(null, vol.getMount(), null, null))
-                                    .collect(Collectors.toList()))
-                            .build()))
-                    .build());
+                .persistent(true)
+                .type(resourceType())
+                .name(resourceNameService.resourceName(resourceType(), stackName, groupName, privateId))
+                .group(group.getName())
+                .status(CommonStatus.CREATED)
+                .params(Map.of(CloudResource.ATTRIBUTES, new VolumeSetAttributes.Builder()
+                        .withVolumeSize(volumeTemplate.getSize())
+                        .withVolumeType(volumeTemplate.getType())
+                        .withAvailabilityZone(auth.getCloudContext().getLocation().getAvailabilityZone().value())
+                        .withVolumes(template.getVolumes().stream().map(vol -> new VolumeSetAttributes.Volume(null, vol.getMount(), null, null))
+                                .collect(Collectors.toList()))
+                        .build()))
+                .build());
     }
 
     @Override
     public List<CloudResource> build(AwsContext context, long privateId, AuthenticatedContext auth, Group group,
             List<CloudResource> buildableResource, CloudStack cloudStack) throws Exception {
         LOGGER.info("Create volumes on provider");
-        AwsCredentialView credentialView = new AwsCredentialView(auth.getCloudCredential());
-        String regionName = auth.getCloudContext().getLocation().getRegion().value();
-        AmazonEC2Client client = awsClient.createAccess(credentialView, regionName);
+        AmazonEC2Client client = getAmazonEC2Client(auth);
 
         Map<String, List<VolumeSetAttributes.Volume>> volumeSetMap = Collections.synchronizedMap(new HashMap<>());
 
@@ -174,15 +172,15 @@ public class AwsVolumeResourceBuilder extends AbstractAwsComputeBuilder {
                             .withDeleteOnTermination(true);
 
                     return new InstanceBlockDeviceMappingSpecification()
-                        .withEbs(device)
-                        .withDeviceName(volume.getDevice());
+                            .withEbs(device)
+                            .withDeviceName(volume.getDevice());
                 })
                 .collect(Collectors.toList());
         ModifyInstanceAttributeRequest modifyInstanceAttributeRequest = new ModifyInstanceAttributeRequest()
                 .withInstanceId(resource.getInstanceId())
                 .withBlockDeviceMappings(deviceMappingSpecifications);
 
-        AmazonEC2Client client = awsClient.createAccess(auth.getCloudCredential());
+        AmazonEC2Client client = getAmazonEC2Client(auth);
         LOGGER.debug("Volume delete request {}", modifyInstanceAttributeRequest);
         ModifyInstanceAttributeResult modifyIdentityIdFormatResult = client.modifyInstanceAttribute(modifyInstanceAttributeRequest);
         LOGGER.debug("Volume delete result {}", modifyIdentityIdFormatResult);
@@ -197,7 +195,7 @@ public class AwsVolumeResourceBuilder extends AbstractAwsComputeBuilder {
     @Override
     protected List<CloudResourceStatus> checkResources(ResourceType type, AwsContext context, AuthenticatedContext auth, Iterable<CloudResource> resources) {
 
-        AmazonEC2Client client = awsClient.createAccess(auth.getCloudCredential());
+        AmazonEC2Client client = getAmazonEC2Client(auth);
         List<CloudResource> volumeResources = StreamSupport.stream(resources.spliterator(), false)
                 .filter(r -> r.getType().equals(resourceType()))
                 .collect(Collectors.toList());
@@ -220,6 +218,12 @@ public class AwsVolumeResourceBuilder extends AbstractAwsComputeBuilder {
 
     private Function<CloudResource, VolumeSetAttributes> volumeSetAttributes() {
         return volumeSet -> volumeSet.getParameter(CloudResource.ATTRIBUTES, VolumeSetAttributes.class);
+    }
+
+    private AmazonEC2Client getAmazonEC2Client(AuthenticatedContext auth) {
+        AwsCredentialView credentialView = new AwsCredentialView(auth.getCloudCredential());
+        String regionName = auth.getCloudContext().getLocation().getRegion().value();
+        return awsClient.createAccess(credentialView, regionName);
     }
 
     @Override
