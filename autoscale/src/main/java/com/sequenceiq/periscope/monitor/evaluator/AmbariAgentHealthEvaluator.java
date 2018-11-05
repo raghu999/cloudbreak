@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import com.sequenceiq.ambari.client.AmbariClient;
 import com.sequenceiq.cloudbreak.api.model.FailureReport;
 import com.sequenceiq.cloudbreak.client.CloudbreakClient;
+import com.sequenceiq.cloudbreak.client.CloudbreakIdentityClient;
 import com.sequenceiq.cloudbreak.logger.MDCBuilder;
 import com.sequenceiq.periscope.aspects.AmbariRequestLogging;
 import com.sequenceiq.periscope.domain.Cluster;
@@ -99,7 +100,7 @@ public class AmbariAgentHealthEvaluator extends EvaluatorExecutor {
                 }
                 if (!hostNamesToRecover.isEmpty()) {
                     hostNamesToRecover.forEach(hn -> LOGGER.info("Host to recover: {}", hn));
-                    CloudbreakClient cbClient = cloudbreakClientConfiguration.cloudbreakClient();
+                    CloudbreakIdentityClient cbClient = cloudbreakClientConfiguration.cloudbreakClient();
                     FailureReport failureReport = new FailureReport();
                     failureReport.setFailedNodes(hostNamesToRecover);
                     cbClient.autoscaleEndpoint().failureReport(cluster.getStackId(), failureReport);

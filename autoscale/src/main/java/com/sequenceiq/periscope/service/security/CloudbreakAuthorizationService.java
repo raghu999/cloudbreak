@@ -7,14 +7,14 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
-import com.sequenceiq.cloudbreak.client.CloudbreakClient;
+import com.sequenceiq.cloudbreak.client.CloudbreakIdentityClient;
 
 @Service
 @Lazy
 public class CloudbreakAuthorizationService {
 
     @Inject
-    private CloudbreakClient cloudbreakClient;
+    private CloudbreakIdentityClient cloudbreakClient;
 
     @Cacheable(cacheNames = "stackAccessByUserIdAndTenantCache")
     public void hasAccess(Long stackId, String userId, String tenant, String permission) {

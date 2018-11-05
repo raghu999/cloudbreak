@@ -15,12 +15,20 @@ public class MockCaasController {
 
     @GetMapping("/oidc/userinfo")
     public CaasUser getUserInfo() {
-        return null;
+        CaasUser caasUser = new CaasUser();
+        caasUser.setName("perdos@hortonworks.com");
+        caasUser.setPreferredUsername("perdos@hortonworks.com");
+        caasUser.setId("1");
+        caasUser.setTenantId("manage");
+        return caasUser;
     }
 
     @PostMapping("/oidc/introspect")
     public IntrospectResponse introSpect(String token) {
-        return null;
+        IntrospectResponse introspectResponse = new IntrospectResponse();
+        introspectResponse.setActive(true);
+        introspectResponse.setAud("manage");
+        return introspectResponse;
     }
 
     @GetMapping("/auth/in")

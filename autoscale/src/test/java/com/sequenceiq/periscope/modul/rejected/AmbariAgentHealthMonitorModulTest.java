@@ -41,7 +41,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import com.sequenceiq.ambari.client.AmbariClient;
 import com.sequenceiq.cloudbreak.api.endpoint.autoscale.AutoscaleEndpoint;
 import com.sequenceiq.cloudbreak.api.model.FailureReport;
-import com.sequenceiq.cloudbreak.client.CloudbreakClient;
+import com.sequenceiq.cloudbreak.client.CloudbreakIdentityClient;
 import com.sequenceiq.cloudbreak.util.JsonUtil;
 import com.sequenceiq.periscope.api.model.ClusterState;
 import com.sequenceiq.periscope.domain.Cluster;
@@ -90,7 +90,7 @@ public class AmbariAgentHealthMonitorModulTest extends RejectedThreadContext {
     private JobDetail jobDetail;
 
     @Mock
-    private CloudbreakClient cloudbreakClient;
+    private CloudbreakIdentityClient cloudbreakClient;
 
     private TestContextManager testContextManager;
 

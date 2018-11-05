@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.sequenceiq.cloudbreak.client.CloudbreakClient;
-import com.sequenceiq.cloudbreak.client.CloudbreakClient.CloudbreakClientBuilder;
+import com.sequenceiq.cloudbreak.client.CloudbreakIdentityClient;
+import com.sequenceiq.cloudbreak.client.CloudbreakIdentityClient.CloudbreakIdentityClientBuilder;
 
 @Configuration
 public class CloudbreakClientConfiguration {
@@ -20,14 +20,17 @@ public class CloudbreakClientConfiguration {
     private String cbRootContextPath;
 
     @Autowired
-    @Qualifier("TODO")
-    private String caasProtocol;
+    @Qualifier("identityServerUrl")
+    private String identityServerUrl;
 
-    @Value("${TODO}")
-    private String caasAddress;
+    @Value("${periscope.client.id}")
+    private String clientId;
+
+    @Value("${periscope.client.secret}")
+    private String secret;
 
     @Bean
-    public CloudbreakClient cloudbreakClient() {
-        return new CloudbreakClientBuilder(cloudbreakUrl + cbRootContextPath, caasAddress, caasProtocol).build();
+    public CloudbreakIdentityClient cloudbreakClient() {
+        return new CloudbreakIdentityClientBuilder(cloudbreakUrl + cbRootContextPath, identityServerUrl, clientId).withSecret(secret).build();
     }
 }

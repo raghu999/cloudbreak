@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 
 import com.sequenceiq.cloudbreak.api.model.AutoscaleStackResponse;
 import com.sequenceiq.cloudbreak.api.model.Status;
-import com.sequenceiq.cloudbreak.client.CloudbreakClient;
+import com.sequenceiq.cloudbreak.client.CloudbreakIdentityClient;
 import com.sequenceiq.periscope.monitor.context.ClusterCreationEvaluatorContext;
 import com.sequenceiq.periscope.monitor.evaluator.ClusterCreationEvaluator;
 import com.sequenceiq.periscope.monitor.executor.ExecutorServiceWithRegistry;
@@ -42,7 +42,7 @@ public class StackCollectorService {
     public void collectStackDetails() {
         if (LOCK.tryLock()) {
             try {
-                CloudbreakClient cloudbreakClient = cloudbreakClientConfiguration.cloudbreakClient();
+                CloudbreakIdentityClient cloudbreakClient = cloudbreakClientConfiguration.cloudbreakClient();
                 Set<AutoscaleStackResponse> allStacks = cloudbreakClient.autoscaleEndpoint().getAllForAutoscale();
                 for (AutoscaleStackResponse stack : allStacks) {
                     Status clusterStatus = stack.getClusterStatus();

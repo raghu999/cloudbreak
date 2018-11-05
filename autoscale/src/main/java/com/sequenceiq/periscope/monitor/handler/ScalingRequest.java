@@ -13,7 +13,7 @@ import com.sequenceiq.cloudbreak.api.model.UpdateClusterJson;
 import com.sequenceiq.cloudbreak.api.model.UpdateStackJson;
 import com.sequenceiq.cloudbreak.api.model.stack.cluster.host.HostGroupAdjustmentJson;
 import com.sequenceiq.cloudbreak.api.model.stack.instance.InstanceGroupAdjustmentJson;
-import com.sequenceiq.cloudbreak.client.CloudbreakClient;
+import com.sequenceiq.cloudbreak.client.CloudbreakIdentityClient;
 import com.sequenceiq.cloudbreak.common.type.ScalingHardLimitsService;
 import com.sequenceiq.cloudbreak.logger.MDCBuilder;
 import com.sequenceiq.periscope.api.model.ScalingStatus;
@@ -42,7 +42,7 @@ public class ScalingRequest implements Runnable {
     private final ScalingPolicy policy;
 
     @Inject
-    private CloudbreakClient cloudbreakClient;
+    private CloudbreakIdentityClient cloudbreakClient;
 
     @Inject
     private HistoryService historyService;
