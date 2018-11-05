@@ -20,7 +20,7 @@ else
 fi;
 
 git tag -a $VERSION -m "$VERSION"
-git push origin $VERSION
+#git push origin $VERSION
 
 ./gradlew -Penv=jenkins -b build.gradle build uploadArchives -Pversion=$VERSION --info --stacktrace --parallel -x checkstyleMain -x checkstyleTest -x spotbugsMain -x spotbugsTest
 
