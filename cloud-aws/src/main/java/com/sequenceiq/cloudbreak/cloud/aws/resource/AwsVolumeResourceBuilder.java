@@ -186,7 +186,7 @@ public class AwsVolumeResourceBuilder extends AbstractAwsComputeBuilder {
         LOGGER.debug("Volume delete request {}", modifyInstanceAttributeRequest);
         ModifyInstanceAttributeResult modifyIdentityIdFormatResult = client.modifyInstanceAttribute(modifyInstanceAttributeRequest);
         LOGGER.debug("Volume delete result {}", modifyIdentityIdFormatResult);
-        return resource;
+        return null;
     }
 
     @Override
