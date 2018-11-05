@@ -1,6 +1,7 @@
 package com.sequenceiq.cloudbreak.converter.spi;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -21,20 +22,26 @@ public class ResourceToCloudResourceConverter extends AbstractConversionServiceA
 
     @Override
     public CloudResource convert(Resource resource) {
+        Optional<VolumeSetAttributes> attributes = Optional.ofNullable(resource.getAttributes().getValue()).map(json -> {
+            try {
+                return resource.getAttributes().get(VolumeSetAttributes.class);
+            } catch (IOException e) {
+                LOGGER.warn("Failed to convert resource attributes", e);
+                throw new IllegalStateException(e);
+            }
+        });
+
+        Map<String, Object> paramsMap = new HashMap<>();
+        attributes.ifPresent(attr -> paramsMap.put(CloudResource.ATTRIBUTES, attr));
+
         return new Builder()
                 .type(resource.getResourceType())
                 .name(resource.getResourceName())
                 .reference(resource.getResourceReference())
                 .status(resource.getResourceStatus())
                 .group(resource.getInstanceGroup())
-                .params(Map.of(CloudResource.ATTRIBUTES, Optional.ofNullable(resource.getAttributes().getValue()).map(json -> {
-                    try {
-                        return resource.getAttributes().get(VolumeSetAttributes.class);
-                    } catch (IOException e) {
-                        LOGGER.warn("Failed to convert resource attributes", e);
-                        throw new IllegalStateException(e);
-                    }
-                })))
+                .instanceId(resource.getInstanceId())
+                .params(paramsMap)
                 .build();
     }
 }

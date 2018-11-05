@@ -168,12 +168,15 @@ public class AwsVolumeResourceBuilder extends AbstractAwsComputeBuilder {
         VolumeSetAttributes volumeSetAttributes = resource.getParameter(CloudResource.ATTRIBUTES, VolumeSetAttributes.class);
         List<InstanceBlockDeviceMappingSpecification> deviceMappingSpecifications = volumeSetAttributes
                 .getVolumes().stream()
-                .map(VolumeSetAttributes.Volume::getId)
-                .map(id -> new EbsInstanceBlockDeviceSpecification()
-                        .withVolumeId(id)
-                        .withDeleteOnTermination(true))
-                .map(device -> new InstanceBlockDeviceMappingSpecification()
-                        .withEbs(device))
+                .map(volume -> {
+                    EbsInstanceBlockDeviceSpecification device = new EbsInstanceBlockDeviceSpecification()
+                            .withVolumeId(volume.getId())
+                            .withDeleteOnTermination(true);
+
+                    return new InstanceBlockDeviceMappingSpecification()
+                        .withEbs(device)
+                        .withDeviceName(volume.getDevice());
+                })
                 .collect(Collectors.toList());
         ModifyInstanceAttributeRequest modifyInstanceAttributeRequest = new ModifyInstanceAttributeRequest()
                 .withInstanceId(resource.getInstanceId())
