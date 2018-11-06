@@ -5,9 +5,10 @@ import java.util.List;
 
 public class DeviceNameGenerator {
 
-    private static final String DEVICE_NAME_TEMPLATE = "/dev/sd%s";
+    private static final String DEVICE_NAME_TEMPLATE = "/dev/xvd%s";
 
-    private static final List<Character> DEVICE_NAME_POSTFIX_LETTER = List.of('f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p');
+    private static final List<Character> DEVICE_NAME_POSTFIX_LETTER = List.of('b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q',
+            'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z');
 
 //    private static final List<Integer> DEVICE_NAME_POSTFIX_DIGIT = List.of(1, 2, 3, 4, 5, 6);
 
@@ -19,7 +20,6 @@ public class DeviceNameGenerator {
 
     public DeviceNameGenerator() {
         letterIterator = DEVICE_NAME_POSTFIX_LETTER.iterator();
-        currentLetter = letterIterator.next();
 
 //        digitIterator = DEVICE_NAME_POSTFIX_DIGIT.iterator();
     }

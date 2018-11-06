@@ -95,6 +95,7 @@ public class VolumeSetAttributes {
         private String mounthPath;
 
         private String uuid;
+
         private String device;
 
         public Volume(@JsonProperty("id") String id, @JsonProperty("mounthPath") String mounthPath, @JsonProperty("uuid") String uuid,

@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -296,7 +297,9 @@ public class AwsResourceConnector implements ResourceConnector<Object> {
 
     private void addInstancesToContext(List<CloudResource> instances, ResourceBuilderContext context, List<Group> groups) {
         groups.forEach(group -> {
-            List<Long> ids = group.getInstances().stream().map(CloudInstance::getTemplate).map(InstanceTemplate::getPrivateId).collect(Collectors.toList());
+            List<Long> ids = group.getInstances().stream()
+                    .filter(instance -> Objects.isNull(instance.getInstanceId()))
+                    .map(CloudInstance::getTemplate).map(InstanceTemplate::getPrivateId).collect(Collectors.toList());
             List<CloudResource> groupInstances = instances.stream().filter(inst -> inst.getGroup().equals(group.getName())).collect(Collectors.toList());
             for (int i = 0; i < ids.size(); i++) {
                 context.addComputeResources(ids.get(i), List.of(groupInstances.get(i)));
@@ -309,13 +312,21 @@ public class AwsResourceConnector implements ResourceConnector<Object> {
         CloudContext cloudContext = ac.getCloudContext();
         ResourceBuilderContext context = contextBuilder.contextInit(cloudContext, ac, stack.getNetwork(), null, true);
 
+        List<Group> groupsWithNewInstances = scaledGroups.stream().map(group -> {
+            List<CloudInstance> newInstances = group.getInstances().stream()
+                    .filter(instance -> Objects.isNull(instance.getInstanceId())).collect(Collectors.toList());
+
+            return new Group(group.getName(), group.getType(), newInstances, group.getSecurity(), null, group.getParameters(),
+                    group.getInstanceAuthentication(), group.getLoginUserName(), group.getPublicKey(), group.getRootVolumeSize());
+        }).collect(Collectors.toList());
+
         List<CloudResource> newInstances = instances.stream().filter(instance -> {
-            Group group = scaledGroups.stream().filter(scaledGroup -> scaledGroup.getName().equals(instance.getGroup())).findFirst().get();
+            Group group = groupsWithNewInstances.stream().filter(scaledGroup -> scaledGroup.getName().equals(instance.getGroup())).findFirst().get();
             return group.getInstances().stream().noneMatch(inst -> instance.getInstanceId().equals(inst.getInstanceId()));
         }).collect(Collectors.toList());
 
-        addInstancesToContext(newInstances, context, scaledGroups);
-        return computeResourceService.buildResourcesForUpscale(context, ac, stack, scaledGroups);
+        addInstancesToContext(newInstances, context, groupsWithNewInstances);
+        return computeResourceService.buildResourcesForUpscale(context, ac, stack, groupsWithNewInstances);
     }
 
     private List<CloudResourceStatus> deleteComputeResources(AuthenticatedContext ac, CloudStack stack, List<CloudResource> cloudResources) {
@@ -369,7 +380,6 @@ public class AwsResourceConnector implements ResourceConnector<Object> {
 
     private List<CloudResource> getInstanceCloudResources(AuthenticatedContext ac, AmazonCloudFormationRetryClient client,
             AmazonAutoScalingRetryClient amazonASClient, List<Group> groups) {
-        List<CloudResource> cloudResources = new ArrayList<>();
         Map<String, Group> groupNameMapping = groups.stream()
                 .collect(Collectors.toMap(
                         group -> cfStackUtil.getAutoscalingGroupName(ac, client, group.getName()),

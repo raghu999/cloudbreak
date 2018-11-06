@@ -78,7 +78,6 @@ public class AwsVolumeResourceBuilder extends AbstractAwsComputeBuilder {
         LOGGER.info("Create volume resources");
         AwsResourceNameService resourceNameService = getResourceNameService();
 
-        List<CloudResource> cloudResources = new ArrayList<>();
         CloudInstance instance = group.getReferenceInstanceConfiguration();
         InstanceTemplate template = instance.getTemplate();
         Volume volumeTemplate = template.getVolumes().iterator().next();
