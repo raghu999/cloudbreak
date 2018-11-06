@@ -45,6 +45,7 @@ dependencies {
   compile group:  'org.springframework.boot',     name: 'spring-boot-starter-test',       version: springBootVersion
   compile group:  'org.springframework.boot',     name: 'spring-boot-starter-web',        version: springBootVersion
   compile group:  'org.springframework.boot',     name: 'spring-boot-starter-actuator',   version: springBootVersion
+  compile group:  'org.springframework.security', name: 'spring-security-jwt',            version: '1.0.8.RELEASE'
   compile group:  'org.springframework',          name: 'spring-context-support',         version: springFrameworkVersion
   compile group: 'com.google.code.findbugs',      name: 'annotations',                    version: '3.0.1'
   runtime group: 'com.google.inject',             name: 'guice',                          version: '3.0'
