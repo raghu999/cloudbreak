@@ -7,7 +7,9 @@ deps:
 	curl -Ls https://github.com/keyki/dockerhub-tag/releases/download/v0.2.1/dockerhub-tag_0.2.1_$(uname)_x86_64.tgz | tar -xzC /usr/local/bin
 
 dockerhub-tag:
-	dockerhub-tag set $(IMAGE) $(VERSION) $(VERSION) /mock/cloudbreak
+	docker build -t ${IMAGE}:${VERSION} /mock/cloudbreak
+  	docker push ${DOCKER_IMAGE}:${VERSION}
+  	docker rmi ${DOCKER_IMAGE}:${VERSION}
 
 generate-api:
 	./swagger-codegen.sh
